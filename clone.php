@@ -9,6 +9,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
         if ($file) {
             fwrite($file, $content . "\n");
             fclose($file);
+
+            // 定义要检查和创建的目录结构
+            $directories = [
+                'item/content/cover',
+                'item/content/images',
+                'item/content/music',
+                'item/content/music_cover',
+                'item/content/video',
+                'item/images/avatar',
+                'item/images/background',
+                'item/images/comment',
+                'item/meme'
+            ];
+
+            // 检查并创建目录
+            foreach ($directories as $dir) {
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+            }
             
             // 启动Python脚本
             $pythonScript = 'douyin_clone.py';
