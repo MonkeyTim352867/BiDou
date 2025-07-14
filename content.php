@@ -91,12 +91,6 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
             to { transform: translateY(0); opacity: 1; }
         }
     </style>
-    <style>
-        video {
-            position: absolute;
-            object-fit: contain; /* 保证视频完整显示并添加黑边 */
-        }
-    </style>
 </head>
 <body class="bg-gray-50 font-sans text-text-primary">
     <!-- 顶部导航栏 -->
@@ -207,6 +201,7 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
                     
                     <!-- 作者信息 -->
                     <div class="flex items-center justify-between mb-6 animate-slide-up" style="animation-delay: 0.2s;">
+                        <a href="./user.php?uid=<?php echo htmlspecialchars($content['author']); ?>">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-transparent hover:border-primary transition-all">
                                 <img src="<?php echo htmlspecialchars($author['avatar']); ?>" alt="<?php echo htmlspecialchars($author['user_name']); ?>的头像" class="w-full h-full object-cover" />
@@ -215,6 +210,7 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
                                 <h3 class="font-bold text-lg"><?php echo htmlspecialchars($author['user_name']); ?></h3>
                             </div>
                         </div>
+                        </a>
                         <button class="px-4 py-2 bg-primary text-white rounded-full flex items-center space-x-2 hover:bg-primary/90 transition-colors shadow-sm">
                             <i class="fa fa-plus"></i>
                             <span>关注</span>
@@ -240,6 +236,18 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
                                     </div>
                                 </div>
                             </div>
+                            <?php if (!empty($content['music'])): ?>
+                            <!-- 音频信息 -->
+                            <div class="mt-6 p-4 bg-gray-50 rounded-lg flex items-center space-x-4 shadow-sm">
+                                <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                    <img src="<?php echo htmlspecialchars($music['cover']); ?>" alt="<?php echo htmlspecialchars($music['title']); ?>封面" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium"><?php echo htmlspecialchars($music['title']); ?></h4>
+                                    <p class="text-text-tertiary text-sm"><?php echo htmlspecialchars($music['music_author']); ?></p>
+                                </div>
+                            </div>
+                            <?php endif ?>
                         <?php } elseif ($content['type'] === 'note') { ?>
                             <div class="space-y-4">
                                 <?php
@@ -280,7 +288,7 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
                                         <h4 class="font-medium"><?php echo htmlspecialchars($music['title']); ?></h4>
                                         <p class="text-text-tertiary text-sm"><?php echo htmlspecialchars($music['music_author']); ?></p>
                                     </div>
-                                    <audio controls class="w-32">
+                                    <audio controls loop class="w-40" id="bgm">
                                         <source src="<?php echo htmlspecialchars($music['music_content']); ?>" type="audio/mpeg">
                                         您的浏览器不支持音频播放。
                                     </audio>
@@ -306,6 +314,13 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
                             <button id="share_button" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-text-secondary hover:bg-primary hover:text-white transition-colors">
                                 <i class="fa fa-link"></i>
                             </button>
+                            <?php if ($content['source'] === "douyin"): ?>
+                                <a href="<?php echo htmlspecialchars($content['url']) ?>">
+                                    <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-text-secondary hover:bg-primary hover:text-white transition-colors">
+                                        <img src="./ui/douyin.svg" class="w-4 h-4">
+                                    </button>
+                                </a>
+                            <?php endif ?>
                         </div>
                     </div>
                     
@@ -362,7 +377,6 @@ $isMobile = preg_match('/(android|iphone|ipad|ipod)/i', $_SERVER['HTTP_USER_AGEN
         <i class="fa fa-arrow-up"></i>
     </button>
 
-    <div id="message"></div>
     <!-- JavaScript -->
     <script>
         // 获取DOM元素

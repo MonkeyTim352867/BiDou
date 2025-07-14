@@ -178,6 +178,15 @@ if (!empty($q)) {
             -webkit-box-orient: vertical;
         }
 
+       .title-wrap-ellipsis {
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
         /* 点赞量叠层显示在封面右下角 */
        .like-overlay {
             position: absolute;
@@ -188,6 +197,12 @@ if (!empty($q)) {
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 14px;
+        }
+
+       .author-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
         }
     </style>
 </head>
@@ -279,7 +294,7 @@ if (!empty($q)) {
                         <?php else: ?>
                             <div class="bg-white rounded-xl shadow-card p-4 relative">
                                 <a href="./content.php?cid=<?php echo htmlspecialchars($result['cid']); ?>">
-                                    <img src="<?php echo htmlspecialchars($result['cover']); ?>" alt="<?php echo htmlspecialchars($result['title']); ?> 封面" class="w-full h-auto rounded-lg mb-2">
+                                    <img src="<?php echo htmlspecialchars($result['cover']); ?>" alt="<?php echo htmlspecialchars($result['title']); ?> 封面" class="w-full h-64 object-cover rounded-lg mb-2">
                                 </a>
                                 <span class="like-overlay">
                                     <i class="fa fa-heart-o mr-1"></i> <?php echo htmlspecialchars($result['like']); ?>
@@ -294,12 +309,13 @@ if (!empty($q)) {
                                     }
                                     ?>
                                 </div>
-                                <h2 class="text-lg font-bold mb-1">
+                                <h2 class="text-lg font-bold mb-1 title-wrap-ellipsis">
                                     <a href="./content.php?cid=<?php echo htmlspecialchars($result['cid']); ?>">
                                         <?php echo htmlspecialchars($result['title']); ?>
                                     </a>
                                 </h2>
-                                <div class="flex items-center space-x-2 mb-1">
+                                <br>
+                                <div class="flex items-center space-x-2 mb-1 author-overlay">
                                     <a href="./user.php?uid=<?php echo htmlspecialchars($result['author']); ?>">
                                         <img src="<?php echo htmlspecialchars($result['avatar']); ?>" alt="<?php echo htmlspecialchars($result['user_name']); ?> 头像" class="w-6 h-6 avatar-round">
                                     </a>

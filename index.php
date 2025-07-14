@@ -10,10 +10,10 @@ try {
 
 // 获取当前加载的偏移量，默认为 0
 $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
-// 每次加载 30 条内容
-$limit = 30;
+// 每次加载 12 条内容
+$limit = 12;
 
-// 随机查询 30 条内容
+// 随机查询 12 条内容
 $sql = "SELECT c.*, u.user_name, u.avatar FROM contents c 
         JOIN users u ON c.author = u.uid 
         ORDER BY RANDOM() 
@@ -115,26 +115,6 @@ $recommended_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 50%;
         }
 
-        /* 介绍省略多余部分 */
-       .intro-ellipsis {
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width:80%;
-        }
-
-        /* 用户名可换行和省略 */
-       .username-wrap-ellipsis {
-            word-wrap: break-word;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
         /* 点赞量叠层显示在封面右下角 */
        .like-overlay {
             position: absolute;
@@ -146,65 +126,23 @@ $recommended_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 4px;
             font-size: 14px;
         }
+
+       .author-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .title-wrap-ellipsis {
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
     </style>
-    <script>
-        let currentOffset = <?php echo $offset; ?>;
-        const limit = <?php echo $limit; ?>;
-        const grid = document.querySelector('.grid');
 
-        window.addEventListener('scroll', function() {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-                loadMore();
-            }
-        });
-
-        function loadMore() {
-            currentOffset += limit;
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', `index.php?offset=${currentOffset}`, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(xhr.responseText, 'text/html');
-                    const newItems = doc.querySelectorAll('.grid > div');
-                    newItems.forEach(item => {
-                        grid.appendChild(item);
-                    });
-                }
-            };
-            xhr.send();
-        }
-
-        // 搜索函数
-        function performSearch() {
-            const searchInput = document.getElementById('search-input');
-            const keyword = searchInput.value.trim();
-            if (keyword) {
-                // 跳转到搜索结果页，携带搜索参数
-                window.location.href = `./search.php?q=${encodeURIComponent(keyword)}`;
-            } else {
-                // 处理搜索词为空的情况（可选）
-                searchInput.classList.add('border-red-500');
-                setTimeout(() => searchInput.classList.remove('border-red-500'), 2000);
-            }
-        }
-
-        // 页面加载完成后绑定事件
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search-input');
-            const searchButton = document.getElementById('search-button');
-
-            // 绑定按钮点击事件
-            searchButton.addEventListener('click', performSearch);
-
-            // 绑定输入框回车键事件
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
-            });
-        });
-    </script>
 </head>
 <body class="bg-gray-50 font-sans text-text-primary">
     <!-- 顶部导航栏 -->
@@ -273,11 +211,11 @@ $recommended_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="w-full md:w-full animate-fade-in">
             <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-text-primary leading-tight mb-2">推荐内容</h1>
             <?php if (!empty($recommended_results)): ?>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id = "main-content">
                     <?php foreach ($recommended_results as $result): ?>
                         <div class="bg-white rounded-xl shadow-card p-4 relative">
                             <a href="./content.php?cid=<?php echo htmlspecialchars($result['cid']); ?>">
-                                <img src="<?php echo htmlspecialchars($result['cover']); ?>" alt="<?php echo htmlspecialchars($result['title']); ?> 封面" class="w-full h-auto rounded-lg mb-2">
+                                <img src="<?php echo htmlspecialchars($result['cover']); ?>" alt="<?php echo htmlspecialchars($result['title']); ?> 封面" class="w-full h-64 object-cover rounded-lg mb-2">
                             </a>
                             <span class="like-overlay">
                                 <i class="fa fa-heart-o mr-1"></i> <?php echo htmlspecialchars($result['like']); ?>
@@ -292,12 +230,13 @@ $recommended_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 }
                                 ?>
                             </div>
-                            <h2 class="text-lg font-bold mb-1">
+                            <h2 class="text-lg font-bold mb-1 title-wrap-ellipsis">
                                 <a href="./content.php?cid=<?php echo htmlspecialchars($result['cid']); ?>">
                                     <?php echo htmlspecialchars($result['title']); ?>
                                 </a>
                             </h2>
-                            <div class="flex items-center space-x-2 mb-1">
+                            <br>
+                            <div class="flex items-center space-x-2 mb-1 author-overlay">
                                 <a href="./user.php?uid=<?php echo htmlspecialchars($result['author']); ?>">
                                     <img src="<?php echo htmlspecialchars($result['avatar']); ?>" alt="<?php echo htmlspecialchars($result['user_name']); ?> 头像" class="w-6 h-6 avatar-round">
                                 </a>
@@ -322,5 +261,66 @@ $recommended_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
     </main>
+    <script>
+        let currentOffset = <?php echo $offset; ?>;
+        const limit = <?php echo $limit; ?>;
+        const grid = document.querySelector('.grid');
+
+        window.addEventListener('scroll', function() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                loadMore();
+            }
+        });
+
+        function loadMore() {
+            currentOffset += limit;
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `index.php?offset=${currentOffset}`, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(xhr.responseText, 'text/html');
+                    const newItems = doc.querySelectorAll('.grid > div');
+                    console.log(grid);
+                    newItems.forEach(item => {
+                        //const con = item.innerHTML
+                        //console.log(con);
+                        grid.appendChild(item);
+                    });
+                }
+            };
+            xhr.send();
+        }
+
+        // 搜索函数
+        function performSearch() {
+            const searchInput = document.getElementById('search-input');
+            const keyword = searchInput.value.trim();
+            if (keyword) {
+                // 跳转到搜索结果页，携带搜索参数
+                window.location.href = `./search.php?q=${encodeURIComponent(keyword)}`;
+            } else {
+                // 处理搜索词为空的情况（可选）
+                searchInput.classList.add('border-red-500');
+                setTimeout(() => searchInput.classList.remove('border-red-500'), 2000);
+            }
+        }
+
+        // 页面加载完成后绑定事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+
+            // 绑定按钮点击事件
+            searchButton.addEventListener('click', performSearch);
+
+            // 绑定输入框回车键事件
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
